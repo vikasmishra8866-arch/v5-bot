@@ -37,7 +37,7 @@ def web_login():
         asyncio.set_event_loop(loop)
         
         if step == 'phone':
-            phone = request.form.get('phone')
+            phone = request.form.get('phone').strip()
             session['phone'] = phone
             try:
                 client = TelegramClient(StringSession(), API_ID, API_HASH)
@@ -51,7 +51,7 @@ def web_login():
                 error = str(e)
                 
         elif step == 'code':
-            code = request.form.get('code')
+            code = request.form.get('code').strip()
             phone = session.get('phone')
             phone_code_hash = session.get('phone_code_hash')
             try:
@@ -73,7 +73,7 @@ def web_login():
                 error = str(e)
                 
         elif step == 'password':
-            password = request.form.get('password')
+            password = request.form.get('password').strip()
             try:
                 client = TelegramClient(StringSession(), API_ID, API_HASH)
                 loop.run_until_complete(client.connect())
@@ -154,114 +154,4 @@ async def handle_vehicle_search(message: types.Message):
         return
 
     warning_footer = "\n\n*⚠️ This data will be automatically deleted in 20 minutes for security and privacy.*"
-    sent_result = await message.answer(f"```text\n{result_text}\n```" + warning_footer, parse_mode="Markdown")
-    
-    asyncio.create_task(auto_delete_message(message.chat.id, sent_result.message_id, 1200))
-
-async def auto_delete_message(chat_id: int, message_id: int, delay: int):
-    await asyncio.sleep(delay)
-    try:
-        await bot.delete_message(chat_id=chat_id, message_id=message_id)
-    except Exception:
-        pass
-
-@dp.callback_query(F.data == "recharge_menu")
-async def recharge_menu(callback: types.CallbackQuery):
-    plans_text = (
-        "💎 **SELECT RECHARGE PLAN**\n\n"
-        "• **15 INR** = 1 Point\n"
-        "• **60 INR** = 6 Points\n"
-        "• **120 INR** = 15 Points + 3 Bonus = **18 Points**\n\n"
-        "Select a plan below to generate secure payment QR:"
-    )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="1 Point (₹15)", callback_data="plan_1")],
-        [InlineKeyboardButton(text="6 Points (₹60)", callback_data="plan_6")],
-        [InlineKeyboardButton(text="18 Points (₹120)", callback_data="plan_18")]
-    ])
-    await callback.message.edit_text(plans_text, reply_markup=keyboard, parse_mode="Markdown")
-    await callback.answer()
-
-@dp.callback_query(F.data.startswith("plan_"))
-async def select_plan(callback: types.CallbackQuery):
-    plan_qty = callback.data.split("_")[1]
-    prices = {"1": "15", "6": "60", "18": "120"}
-    amount = prices.get(plan_qty, "15")
-    
-    upi_url = f"upi://pay?pa={UPI_ID}&pn=VahanAdmin&am={amount}&cu=INR"
-    qr = qrcode.QRCode(version=1, box_size=10, border=2)
-    qr.add_data(upi_url)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    
-    path = f"qr_{callback.from_user.id}.png"
-    img.save(path)
-    
-    caption = (
-        f"📱 **SCAN & PAY (UPI)**\n\n"
-        f"Amount: **₹{amount}** for **{plan_qty} Points**\n"
-        f"UPI ID: `{UPI_ID}`\n\n"
-        f"📸 After payment, send screenshot & your User ID to Admin.\n"
-        f"*⚠️ This QR code will automatically self-destruct in 5 minutes.*"
-    )
-    
-    photo = BufferedInputFile(open(path, "rb").read(), filename="qr.png")
-    qr_msg = await callback.message.answer_photo(photo=photo, caption=caption, parse_mode="Markdown")
-    if os.path.exists(path):
-        os.remove(path)
-        
-    user = callback.from_user
-    admin_notif = (
-        f"🔔 **NEW PAYMENT REQUEST**\n\n"
-        f"👤 Name: {user.first_name}\n"
-        f"🔖 Username: @{user.username if user.username else 'None'}\n"
-        f"🆔 User ID: `{user.id}`\n"
-        f"📦 Selected Plan: {plan_qty} Points (₹{amount})"
-    )
-    admin_kb = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text=f"Give {plan_qty} Pts", callback_data=f"give_{user.id}_{plan_qty}"),
-            InlineKeyboardButton(text="Reject", callback_data=f"reject_{user.id}")
-        ]
-    ])
-    await bot.send_message(ADMIN_ID, admin_notif, reply_markup=admin_kb, parse_mode="Markdown")
-    
-    asyncio.create_task(auto_delete_message(callback.message.chat.id, qr_msg.message_id, 300))
-    await callback.answer()
-
-@dp.callback_query(F.data.startswith("give_"))
-async def admin_give_points(callback: types.CallbackQuery):
-    _, target_user_id, pts = callback.data.split("_")
-    target_user_id = int(target_user_id)
-    pts = int(pts)
-    
-    await update_points(target_user_id, pts)
-    await callback.message.edit_text(callback.message.text + f"\n\n✅ **Approved & Credited {pts} Points!**")
-    
-    try:
-        await bot.send_message(target_user_id, f"🎉 Your payment has been verified by Admin! **{pts} Points** have been added to your balance.")
-    except Exception:
-        pass
-    await callback.answer("Points credited successfully!")
-
-@dp.callback_query(F.data.startswith("reject_"))
-async def admin_reject(callback: types.CallbackQuery):
-    target_user_id = int(callback.data.split("_")[1])
-    await callback.message.edit_text(callback.message.text + "\n\n❌ **Payment Rejected.**")
-    try:
-        await bot.send_message(target_user_id, "❌ Your payment verification was rejected by Admin. Contact support for help.")
-    except Exception:
-        pass
-    await callback.answer("Request rejected.")
-
-async def main():
-    await init_db()
-    global userbot_client
-    userbot_client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
-    await userbot_client.start()
-    
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    keep_alive()
-    asyncio.run(main())
+    sent_result = await message.answer(f"```text\n{result_text}\n
