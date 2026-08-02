@@ -43,12 +43,20 @@ async def cmd_start(message: types.Message):
     
     points = await get_or_create_user(user_id, username, first_name)
     
-    welcome_text = (
-        f"🔐 **SECURE VAHAN QUERY SYSTEM** 🔐\n\n"
-        f"Welcome, `{first_name}`!\n"
-        f"Your Current Balance: **{points} Free Points**\n\n"
-        f"Send any vehicle number (e.g., `GJ05CX0863`) to fetch live details instantly."
-    )
+    if user_id == int(ADMIN_ID):
+        welcome_text = (
+            f"👑 **ADMIN PANEL / SECURE VAHAN SYSTEM** 👑\n\n"
+            f"Welcome, Admin `{first_name}`!\n"
+            f"✨ **Status:** Unlimited Free Searches Allowed 🟢\n\n"
+            f"Send any vehicle number (e.g., `GJ05CX0863`) to fetch live details instantly."
+        )
+    else:
+        welcome_text = (
+            f"🔐 **SECURE VAHAN QUERY SYSTEM** 🔐\n\n"
+            f"Welcome, `{first_name}`!\n"
+            f"Your Current Balance: **{points} Free Points**\n\n"
+            f"Send any vehicle number (e.g., `GJ05CX0863`) to fetch live details instantly."
+        )
     await message.answer(welcome_text, parse_mode="Markdown")
 
 @dp.message(F.text & ~F.text.startswith("/"))
@@ -56,15 +64,20 @@ async def handle_vehicle_search(message: types.Message):
     user_id = message.from_user.id
     vehicle_no = message.text.strip()
     
-    points = await get_user_points(user_id)
-    if points <= 0:
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="💎 Get Points / Recharge", callback_data="recharge_menu")]
-        ])
-        await message.answer("❌ **Access Denied:** Your balance is 0 points. Please recharge to continue searching.", reply_markup=keyboard, parse_mode="Markdown")
-        return
+    # Admin bypass check for unlimited searches
+    is_admin = (user_id == int(ADMIN_ID))
+    
+    if not is_admin:
+        points = await get_user_points(user_id)
+        if points <= 0:
+            keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="💎 Get Points / Recharge", callback_data="recharge_menu")]
+            ])
+            await message.answer("❌ **Access Denied:** Your balance is 0 points. Please recharge to continue searching.", reply_markup=keyboard, parse_mode="Markdown")
+            return
+        # Deduct 1 point for regular users
+        await deduct_point(user_id)
 
-    await deduct_point(user_id)
     processing_msg = await message.answer("🔄 `Connecting to secure proxy & fetching details with human simulation...`", parse_mode="Markdown")
     
     result_text = await fetch_vehicle_data(vehicle_no)
@@ -76,7 +89,8 @@ async def handle_vehicle_search(message: types.Message):
     
     if not result_text:
         await message.answer("⚠️ Target service is currently unreachable or busy. Your point has been refunded.")
-        await update_points(user_id, 1)
+        if not is_admin:
+            await update_points(user_id, 1)
         return
 
     warning_footer = "\n\n*⚠️ This data will be automatically deleted in 20 minutes for security and privacy.*"
