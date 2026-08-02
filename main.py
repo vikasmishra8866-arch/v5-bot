@@ -64,7 +64,6 @@ async def handle_vehicle_search(message: types.Message):
     user_id = message.from_user.id
     vehicle_no = message.text.strip()
     
-    # Admin bypass check for unlimited searches
     is_admin = (user_id == int(ADMIN_ID))
     
     if not is_admin:
@@ -75,10 +74,9 @@ async def handle_vehicle_search(message: types.Message):
             ])
             await message.answer("❌ **Access Denied:** Your balance is 0 points. Please recharge to continue searching.", reply_markup=keyboard, parse_mode="Markdown")
             return
-        # Deduct 1 point for regular users
         await deduct_point(user_id)
 
-    processing_msg = await message.answer("🔄 `Connecting to secure proxy & fetching details with human simulation...`", parse_mode="Markdown")
+    processing_msg = await message.answer("🔄 `Connecting to target bot & fetching details...`", parse_mode="Markdown")
     
     result_text = await fetch_vehicle_data(vehicle_no)
     
