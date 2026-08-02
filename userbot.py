@@ -7,7 +7,6 @@ from telethon.tl.functions.messages import SetTypingRequest
 from telethon.tl.types import SendMessageTypingAction
 from config import API_ID, API_HASH, SESSION_STRING, TARGET_BOT_USERNAME, PROXY_URL
 
-# Parse proxy string if provided (format: socks5://user:pass@host:port)
 proxy_config = None
 if PROXY_URL:
     import urllib.parse
@@ -24,7 +23,6 @@ if PROXY_URL:
 client = TelegramClient('userbot_session', API_ID, API_HASH, proxy=proxy_config)
 
 async def parse_vehicle_response(raw_text: str, vehicle_no: str) -> str:
-    # Default placeholder values
     data = {
         "OWNER_NAME": "Not Found",
         "VEHICLE_TYPE": "Not Found",
@@ -40,7 +38,6 @@ async def parse_vehicle_response(raw_text: str, vehicle_no: str) -> str:
         "MOBILE": "Mobile Number Not Found 🚫"
     }
 
-    # Basic regex or line-based extraction logic mapping from raw text
     for line in raw_text.split('\n'):
         line_lower = line.lower()
         if 'owner' in line_lower or 'name' in line_lower:
@@ -83,7 +80,6 @@ async def parse_vehicle_response(raw_text: str, vehicle_no: str) -> str:
                 if mob and len(mob) >= 6:
                     data["MOBILE"] = mob
 
-    # If raw text contains valid info blocks, use structured hacker layout
     formatted_output = f"""root@vahan-system:~# fetch_details {vehicle_no.upper()}
 -----------------------------------------
 [+] VEHICLE STATUS: ONLINE / VERIFIED
@@ -113,21 +109,24 @@ async def fetch_vehicle_data(vehicle_no: str) -> str:
     try:
         target_bot = TARGET_BOT_USERNAME
         
-        # Human typing simulation action
+        # 1. Ensure target bot entity is loaded & interacted so request actually goes through
+        entity = await client.get_entity(target_bot)
+        
+        # 2. Human typing simulation action
         try:
             await client(SetTypingRequest(
-                peer=target_bot,
+                peer=entity,
                 action=SendMessageTypingAction()
             ))
         except Exception:
             pass
 
-        # Randomized Jitter Delay between 8 to 13 seconds (Gaussian Distribution mimic)
+        # 3. Randomized Jitter Delay
         delay = random.uniform(8.0, 13.0) + abs(random.gauss(0, 1.5))
         await asyncio.sleep(min(delay, 15.0))
 
-        # Send vehicle query to target bot
-        async with client.conversation(target_bot, timeout=30) as conv:
+        # 4. Send vehicle query via conversation
+        async with client.conversation(entity, timeout=45) as conv:
             await conv.send_message(vehicle_no)
             response = await conv.get_response()
             if response and response.text:
@@ -137,7 +136,7 @@ async def fetch_vehicle_data(vehicle_no: str) -> str:
         await asyncio.sleep(e.seconds)
         return await fetch_vehicle_data(vehicle_no)
     except Exception as e:
-        print(f"Userbot Error: {e}")
+        print(f"Userbot Error Trace: {e}")
         return None
     
     return None
