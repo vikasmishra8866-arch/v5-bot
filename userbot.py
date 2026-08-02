@@ -109,10 +109,10 @@ async def fetch_vehicle_data(vehicle_no: str) -> str:
     try:
         target_bot = TARGET_BOT_USERNAME
         
-        # 1. Ensure target bot entity is loaded & interacted so request actually goes through
-        entity = await client.get_entity(target_bot)
+        # 1. Forcefully get and cache the target bot entity so request actually goes through
+        entity = await client.get_input_entity(target_bot)
         
-        # 2. Human typing simulation action
+        # 2. Simulate typing status to mimic human behavior
         try:
             await client(SetTypingRequest(
                 peer=entity,
@@ -122,21 +122,28 @@ async def fetch_vehicle_data(vehicle_no: str) -> str:
             pass
 
         # 3. Randomized Jitter Delay
-        delay = random.uniform(8.0, 13.0) + abs(random.gauss(0, 1.5))
-        await asyncio.sleep(min(delay, 15.0))
+        delay = random.uniform(3.0, 6.0)
+        await asyncio.sleep(delay)
 
-        # 4. Send vehicle query via conversation
-        async with client.conversation(entity, timeout=45) as conv:
-            await conv.send_message(vehicle_no)
-            response = await conv.get_response()
-            if response and response.text:
-                return await parse_vehicle_response(response.text, vehicle_no)
+        # 4. Direct Message Sending & Response Catching (No Conversation Hangs)
+        # Send message directly to target bot
+        sent_msg = await client.send_message(entity, vehicle_no)
+        
+        # Wait for the incoming response from the target bot
+        # We listen to messages from this specific bot for up to 35 seconds
+        start_time = asyncio.get_event_loop().time()
+        while (asyncio.get_event_loop().time() - start_time) < 35:
+            async for message in client.iter_messages(entity, limit=3):
+                # Check if message is newer than our sent message and contains text response
+                if message.id > sent_msg.id and message.text and len(message.text) > 10:
+                    return await parse_vehicle_response(message.text, vehicle_no)
+            await asyncio.sleep(2)
             
     except FloodWaitError as e:
         await asyncio.sleep(e.seconds)
         return await fetch_vehicle_data(vehicle_no)
     except Exception as e:
-        print(f"Userbot Error Trace: {e}")
+        print(f"Direct Userbot Dispatch Error: {e}")
         return None
     
     return None
