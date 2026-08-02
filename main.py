@@ -1,6 +1,8 @@
 import asyncio
 import logging
 import os
+import threading
+from flask import Flask
 import qrcode
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
@@ -14,6 +16,23 @@ from userbot import fetch_vehicle_data
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+# --- Flask Web Server for Render 24/7 Keep-Alive ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Vahan Bot is Alive and Running 24/7!"
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+def keep_alive():
+    t = threading.Thread(target=run_web)
+    t.daemon = True
+    t.start()
+# ---------------------------------------------------
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
@@ -167,4 +186,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
+    keep_alive()  # Flask server background thread start karega
     asyncio.run(main())
