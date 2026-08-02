@@ -154,4 +154,4 @@ async def handle_vehicle_search(message: types.Message):
         return
 
     warning_footer = "\n\n*⚠️ This data will be automatically deleted in 20 minutes for security and privacy.*"
-    sent_result = await message.answer(f"```text\n{result_text}\n
+    formatted_message = f"```text\n{result_text}\n
