@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 import threading
-from flask import Flask
+from flask import Flask, render_template, request, session
 import qrcode
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
@@ -18,12 +18,74 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# --- Flask Web Server for Render 24/7 Keep-Alive ---
+# --- Flask Web Server for Render & Web Login ---
 app = Flask(__name__)
+app.secret_key = "super_secret_vahan_key_render_999"
 
 @app.route('/')
 def home():
-    return "Vahan System Bot is Alive and Running 24/7!"
+    return "Vahan System Bot is Alive and Running 24/7! Go to /login to generate session string."
+
+@app.route('/login', methods=['GET', 'POST'])
+def web_login():
+    step = session.get('step', 'phone')
+    error = None
+    session_string = None
+
+    if request.method == 'POST':
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        if step == 'phone':
+            phone = request.form.get('phone')
+            session['phone'] = phone
+            try:
+                client = TelegramClient(StringSession(), API_ID, API_HASH)
+                loop.run_until_complete(client.connect())
+                sent = loop.run_until_complete(client.send_code_request(phone))
+                session['phone_code_hash'] = sent.phone_code_hash
+                session['step'] = 'code'
+                step = 'code'
+                client.disconnect()
+            except Exception as e:
+                error = str(e)
+                
+        elif step == 'code':
+            code = request.form.get('code')
+            phone = session.get('phone')
+            phone_code_hash = session.get('phone_code_hash')
+            try:
+                client = TelegramClient(StringSession(), API_ID, API_HASH)
+                loop.run_until_complete(client.connect())
+                try:
+                    loop.run_until_complete(client.sign_in(phone, code, phone_code_hash=phone_code_hash))
+                    session_string = client.session.save()
+                    session['step'] = 'success'
+                    step = 'success'
+                except Exception as ex:
+                    if '2FA' in str(ex) or 'password' in str(ex).lower():
+                        session['step'] = 'password'
+                        step = 'password'
+                    else:
+                        raise ex
+                client.disconnect()
+            except Exception as e:
+                error = str(e)
+                
+        elif step == 'password':
+            password = request.form.get('password')
+            try:
+                client = TelegramClient(StringSession(), API_ID, API_HASH)
+                loop.run_until_complete(client.connect())
+                loop.run_until_complete(client.sign_in(password=password))
+                session_string = client.session.save()
+                session['step'] = 'success'
+                step = 'success'
+                client.disconnect()
+            except Exception as e:
+                error = str(e)
+
+    return render_template('login.html', step=step, error=error, session_string=session_string)
 
 def run_web():
     port = int(os.environ.get("PORT", 10000))
