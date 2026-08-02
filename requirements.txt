@@ -4,3 +4,4 @@ tgcrypto==1.2.5
 aiosqlite==0.20.0
 qrcode[pil]==7.4.2
 pydantic-settings==2.4.0
+flask
