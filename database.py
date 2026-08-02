@@ -21,7 +21,6 @@ async def get_or_create_user(user_id: int, username: str, first_name: str) -> in
             if row is not None:
                 return row[0]
             else:
-                # Default 0 points on start
                 await db.execute(
                     "INSERT INTO users (user_id, username, first_name, points) VALUES (?, ?, ?, ?)",
                     (user_id, username, first_name, 0)
@@ -37,7 +36,6 @@ async def get_user_points(user_id: int) -> int:
 
 async def update_points(user_id: int, points_to_add: int):
     async with aiosqlite.connect(DB_NAME) as db:
-        # Check if user exists first
         async with db.execute("SELECT points FROM users WHERE user_id = ?", (user_id,)) as cursor:
             row = await cursor.fetchone()
         if row is not None:
