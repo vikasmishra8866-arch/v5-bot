@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Session Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #334155; background: #0f172a; color: white; border-radius: 6px; box-sizing: border-box; }
+        button { background: #2563eb; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #1d4ed8; }
+        .session-box { background: #0f172a; padding: 10px; word-break: break-all; border: 1px dashed #22c55e; color: #22c55e; border-radius: 6px; margin-top: 15px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🔐 Telegram Web Login</h2>
+        <p style="font-size: 14px; color: #94a3b8;">Generate Session String securely on Render</p>
+        
+        {% if step == 'phone' %}
+        <form method="POST">
+            <input type="text" name="phone" placeholder="Phone (e.g. +919876543210)" required>
+            <button type="submit">Send OTP</button>
+        </form>
+        {% elif step == 'code' %}
+        <form method="POST">
+            <input type="text" name="code" placeholder="Enter Telegram OTP Code" required>
+            <button type="submit">Verify Code</button>
+        </form>
+        {% elif step == 'password' %}
+        <form method="POST">
+            <input type="password" name="password" placeholder="2FA Password (if any)" required>
+            <button type="submit">Verify Password</button>
+        </form>
+        {% elif step == 'success' %}
+        <h3 style="color: #22c55e;">Login Successful! 🎉</h3>
+        <p style="font-size: 13px;">Copy your Session String and paste it in Render environment variables:</p>
+        <div class="session-box">{{ session_string }}</div>
+        {% endif %}
+        
+        {% if error %}
+        <p style="color: #ef4444; font-size: 13px; margin-top: 10px;">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
