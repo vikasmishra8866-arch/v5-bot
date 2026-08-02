@@ -7,10 +7,12 @@ import qrcode
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, BufferedInputFile
+from telethon import TelegramClient
+from telethon.sessions import StringSession
 
-from config import BOT_TOKEN, ADMIN_ID, UPI_ID
+from config import BOT_TOKEN, ADMIN_ID, UPI_ID, API_ID, API_HASH, SESSION_STRING
 from database import init_db, get_or_create_user, get_user_points, deduct_point, update_points
-from userbot import fetch_vehicle_data, client as userbot_client, SESSION_STRING
+from userbot import fetch_vehicle_data, client as userbot_client
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
@@ -62,11 +64,9 @@ async def handle_vehicle_search(message: types.Message):
         await message.answer("❌ **Access Denied:** Your balance is 0 points. Please recharge to continue searching.", reply_markup=keyboard, parse_mode="Markdown")
         return
 
-    # Deduct point & notify process
     await deduct_point(user_id)
     processing_msg = await message.answer("🔄 `Connecting to secure proxy & fetching details with human simulation...`", parse_mode="Markdown")
     
-    # Fetch from target bot via secured Userbot bridge
     result_text = await fetch_vehicle_data(vehicle_no)
     
     try:
@@ -76,13 +76,12 @@ async def handle_vehicle_search(message: types.Message):
     
     if not result_text:
         await message.answer("⚠️ Target service is currently unreachable or busy. Your point has been refunded.")
-        await update_points(user_id, 1) # Refund point
+        await update_points(user_id, 1)
         return
 
     warning_footer = "\n\n*⚠️ This data will be automatically deleted in 20 minutes for security and privacy.*"
     sent_result = await message.answer(f"```text\n{result_text}\n```" + warning_footer, parse_mode="Markdown")
     
-    # 20 Minutes Auto-Deletion Timer Task
     asyncio.create_task(auto_delete_message(message.chat.id, sent_result.message_id, 1200))
 
 async def auto_delete_message(chat_id: int, message_id: int, delay: int):
@@ -115,7 +114,6 @@ async def select_plan(callback: types.CallbackQuery):
     prices = {"1": "15", "6": "60", "18": "120"}
     amount = prices.get(plan_qty, "15")
     
-    # Generate UPI QR Code
     upi_url = f"upi://pay?pa={UPI_ID}&pn=VahanAdmin&am={amount}&cu=INR"
     qr = qrcode.QRCode(version=1, box_size=10, border=2)
     qr.add_data(upi_url)
@@ -138,7 +136,6 @@ async def select_plan(callback: types.CallbackQuery):
     if os.path.exists(path):
         os.remove(path)
         
-    # Notify Admin instantly with Inline Action Buttons
     user = callback.from_user
     admin_notif = (
         f"🔔 **NEW PAYMENT REQUEST**\n\n"
@@ -155,7 +152,6 @@ async def select_plan(callback: types.CallbackQuery):
     ])
     await bot.send_message(ADMIN_ID, admin_notif, reply_markup=admin_kb, parse_mode="Markdown")
     
-    # 5 Minutes QR Auto-Deletion Timer Task
     asyncio.create_task(auto_delete_message(callback.message.chat.id, qr_msg.message_id, 300))
     await callback.answer()
 
@@ -186,15 +182,12 @@ async def admin_reject(callback: types.CallbackQuery):
 
 async def main():
     await init_db()
-    # Start Telethon Userbot bridge with session string
-    from telethon.sessions import StringSession
     global userbot_client
-    userbot_client = TelegramClient(StringSession(SESSION_STRING), int(os.getenv("API_ID", "36281716")), os.getenv("API_HASH", "48ceca855a9c556cb52f4872b1db60ca"))
+    userbot_client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
     await userbot_client.start()
     
-    # Start Aiogram Polling
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    keep_alive()  # Start Flask keep-alive thread
+    keep_alive()
     asyncio.run(main())
