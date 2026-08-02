@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8846767321:AAE_oAlKXmnKmXOw3of1UdVsFKFJTcCL25E")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8846767321:AAFIg82UDaL8H_ZGwDK6AQS3-l9zLWuNr6U")
 API_ID = int(os.getenv("API_ID", "36281716"))
 API_HASH = os.getenv("API_HASH", "48ceca855a9c556cb52f4872b1db60ca")
 
