@@ -1,0 +1,91 @@
+from flask import Flask, render_template, request, jsonify, send_file
+import pikepdf
+import io
+import time
+import re
+
+app = Flask(__name__)
+
+COMMON_NAMES = [
+    "AMIT", "ANIL", "ARUN", "AJAY", "ABHI", "AKAS", "AMAN", "ANSH", "ANUP", "ASHU", 
+    "DEEP", "DEVA", "DINE", "GAUR", "GURU", "HARI", "HEMA", "INDU", "JAYA", "JAYE", 
+    "JYOT", "KAMA", "KAPI", "KIRA", "KUNA", "LALU", "MADH", "MANO", "MEEN", "MOHA", 
+    "MUKA", "NEER", "NITI", "PANK", "PAWA", "PIYU", "POOJ", "PRAD", "PRAK", "PRAM", 
+    "RAHU", "RAJA", "RAJE", "RAKE", "RAMA", "RANI", "RAVI", "RISH", "ROHA", "ROHI", 
+    "SACH", "SAME", "SANJ", "SANT", "SARA", "SATI", "SHIV", "SHYA", "SONU", "SUMI", 
+    "SUNI", "SURA", "TARA", "UMES", "VIKA", "VIMA", "VINO", "VIVE", "YOGE", "KUMA", 
+    "SING", "MISH", "SHAR", "VERM", "GUPT", "YADA", "PATE", "CHAU", "KHAN"
+]
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/recover', methods=['POST'])
+def recover():
+    if 'pdf' not in request.files:
+        return jsonify({'success': False, 'message': 'No file uploaded'}), 400
+
+    pdf_file = request.files['pdf']
+    mode = request.form.get('mode', 'name_digits')
+    hint = request.form.get('hint', '').strip().upper()
+    hint = re.sub(r'[^A-Z0-9]', '', hint)
+
+    pdf_bytes = pdf_file.read()
+    found_password = None
+    unlocked_bytes = None
+    start_time = time.time()
+
+    if mode == 'name_digits':
+        search_prefixes = []
+        if len(hint) >= 4:
+            for i in range(len(hint) - 3):
+                search_prefixes.append(hint[i:i+4])
+        
+        search_prefixes.extend(COMMON_NAMES)
+        search_prefixes = list(dict.fromkeys(search_prefixes))
+
+        for prefix in search_prefixes:
+            for n in range(10000):
+                test_pass = f"{prefix}{n:04d}"
+                try:
+                    with pikepdf.open(io.BytesIO(pdf_bytes), password=test_pass) as pdf:
+                        out_stream = io.BytesIO()
+                        pdf.save(out_stream)
+                        found_password = test_pass
+                        unlocked_bytes = out_stream.getvalue()
+                        break
+                except:
+                    continue
+            if found_password:
+                break
+    else: # 8-Digit Numeric
+        for n in range(100000000):
+            test_pass = f"{n:08d}"
+            try:
+                with pikepdf.open(io.BytesIO(pdf_bytes), password=test_pass) as pdf:
+                    out_stream = io.BytesIO()
+                    pdf.save(out_stream)
+                    found_password = test_pass
+                    unlocked_bytes = out_stream.getvalue()
+                    break
+            except:
+                continue
+
+    elapsed = round(time.time() - start_time, 2)
+
+    if found_password:
+        # Store temporarily in session/file or return response
+        import base64
+        encoded_pdf = base64.b64encode(unlocked_bytes).decode('utf-8')
+        return jsonify({
+            'success': True, 
+            'password': found_password, 
+            'elapsed': elapsed,
+            'pdf_data': encoded_pdf
+        })
+    else:
+        return jsonify({'success': False, 'message': 'Password not found in dictionary matrix.'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
