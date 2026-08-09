@@ -43,12 +43,18 @@ def recover():
     try:
         if mode == 'name_digits':
             search_prefixes = []
+            
+            # 🔥 VIP PRIORITY: User ke hint ko sabse upar rakhein taaki pehle wohi check ho!
             if len(hint) >= 4:
                 for i in range(len(hint) - 3):
-                    search_prefixes.append(hint[i:i+4])
+                    chunk = hint[i:i+4]
+                    if chunk not in search_prefixes:
+                        search_prefixes.append(chunk)
             
-            search_prefixes.extend(COMMON_NAMES)
-            search_prefixes = list(dict.fromkeys(search_prefixes))
+            # Baaki common names ko baad me add karein
+            for name in COMMON_NAMES:
+                if name not in search_prefixes:
+                    search_prefixes.append(name)
 
             for prefix in search_prefixes:
                 for n in range(10000):
