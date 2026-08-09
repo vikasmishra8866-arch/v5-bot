@@ -52,10 +52,11 @@ def stream_recover():
                         search_prefixes.append(name)
 
                 for prefix in search_prefixes:
-                    # 🔥 Year restriction: 2000 se lekar 2030 tak hi check hoga
                     for year in range(2000, 2031):
                         test_pass = f"{prefix}{year}"
                         
+                        # Mobile browser ko hang hone se bachane ke liye chhota sa micro-pause
+                        time.sleep(0.001)
                         yield f"data: {json.dumps({'status': 'testing', 'pass': test_pass})}\n\n"
 
                         try:
@@ -73,6 +74,7 @@ def stream_recover():
                 for n in range(100000000):
                     test_pass = f"{n:08d}"
                     if n % 50 == 0:
+                        time.sleep(0.001)
                         yield f"data: {json.dumps({'status': 'testing', 'pass': test_pass})}\n\n"
                     try:
                         with pikepdf.open(io.BytesIO(pdf_bytes), password=test_pass) as pdf:
