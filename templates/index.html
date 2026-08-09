@@ -126,23 +126,81 @@
       width: 100%;
       height: 220px;
     }
+
+    /* Congratulatory Popup Modal Styles */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 15, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s ease;
+    }
+    .popup-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .popup-box {
+      background: linear-gradient(135deg, rgba(2, 12, 27, 0.95) 0%, rgba(5, 30, 60, 0.95) 100%);
+      border: 2px solid #10B981;
+      box-shadow: 0 0 50px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(16, 185, 129, 0.2);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      transform: scale(0.8);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .popup-overlay.active .popup-box {
+      transform: scale(1);
+    }
   </style>
 </head>
 <body>
 
+  <!-- Scanning Laser Overlay Element -->
   <div id="laser" class="laser-line"></div>
+
+  <!-- CONGRATULATIONS POPUP MODAL -->
+  <div id="congratsPopup" class="popup-overlay">
+    <div class="popup-box space-y-4">
+      <div class="w-16 h-16 mx-auto bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)]">
+        <i class="fa-solid fa-award text-3xl text-emerald-400 animate-bounce"></i>
+      </div>
+      <div>
+        <h3 class="font-['Orbitron'] font-black text-xl text-emerald-400 tracking-wider">CONGRATULATIONS!</h3>
+        <p class="text-xs text-slate-300 mt-1 font-['Share+Tech+Mono']">PDF DECRYPTION SUCCESSFUL</p>
+      </div>
+      <div id="popupKeyDisplay" class="bg-emerald-950/40 border border-emerald-500/40 py-2.5 px-4 rounded-xl text-emerald-300 font-bold text-sm tracking-widest">
+        KEY: --
+      </div>
+      <button type="button" onclick="closePopup()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-['Orbitron'] font-black rounded-xl text-xs tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-[1.02] transition">
+        PROCEED TO DASHBOARD
+      </button>
+    </div>
+  </div>
 
   <div class="w-full max-w-5xl space-y-6 relative z-10">
     
+    <!-- HEADER -->
     <div class="text-center pb-2 border-b border-cyan-500/20">
       <h1 class="sci-fi-title text-2xl font-black text-cyan-400 tracking-widest">PDF RECOVERY PROTOCOL</h1>
       <p class="text-xs text-cyan-300/70 tracking-widest mt-1">MILITARY DECRYPTION MATRIX & CONTROL SUITE</p>
     </div>
 
+    <!-- MAIN TWO-COLUMN DASHBOARD GRID -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
+      <!-- LEFT PANEL: CONTROL INPUTS -->
       <div class="lg:col-span-6 glass-card p-6 space-y-5">
         
+        <!-- MODE SELECTION -->
         <div>
           <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">⚙️ RECOVERY MODE</label>
           <div class="grid grid-cols-2 gap-3">
@@ -151,6 +209,7 @@
           </div>
         </div>
 
+        <!-- FILE UPLOAD -->
         <div>
           <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">📄 ENCRYPTED PAYLOAD</label>
           <div onclick="document.getElementById('pdfFile').click()" class="border-2 border-dashed border-cyan-500/40 rounded-xl p-5 text-center bg-cyan-950/10 cursor-pointer min-h-[52px] flex flex-col justify-center items-center hover:border-cyan-400 transition group">
@@ -160,11 +219,13 @@
           </div>
         </div>
 
+        <!-- HINT INPUT -->
         <div id="hintBox">
           <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">💡 TARGET HINT (UPPERCASE)</label>
           <input type="text" id="hintInput" placeholder="E.G. VIKAS" oninput="handleRealtimeInput(this)" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest">
         </div>
 
+        <!-- SUBMIT & CANCEL BUTTON GRID -->
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2">
           <button type="button" id="subBtn" onclick="startLiveRecovery()" class="sm:col-span-8 btn-execute w-full rounded-xl text-white font-black text-xs tracking-widest py-4 flex items-center justify-center gap-2">
             <i class="fa-solid fa-microchip text-cyan-200"></i>
@@ -178,6 +239,7 @@
 
       </div>
 
+      <!-- RIGHT PANEL: DYNAMIC MATRIX FEED & RESULT PANEL -->
       <div class="lg:col-span-6 glass-card p-6 flex flex-col justify-between space-y-4">
         <div>
           <div class="flex justify-between items-center text-xs text-cyan-400 font-['Orbitron'] mb-3">
@@ -185,6 +247,7 @@
             <span id="engineStatusBadge" class="text-slate-500 font-bold">STANDBY</span>
           </div>
           
+          <!-- Canvas Matrix Code Rain / Hex Stream -->
           <div class="relative">
             <canvas id="matrixCanvas"></canvas>
           </div>
@@ -263,7 +326,6 @@
       }
 
       function draw(timestamp) {
-        // 🔥 Throttle animation to ~30fps for mobile performance optimization
         if (timestamp - lastRenderTime < 33) {
           animationFrameId = requestAnimationFrame(draw);
           return;
@@ -305,6 +367,10 @@
       ctx.fillStyle = "#F59E0B";
       ctx.font = "13px 'Orbitron', sans-serif";
       ctx.fillText("[!] PROCESS CANCELLED BY USER", 20, 110);
+    }
+
+    function closePopup() {
+      document.getElementById('congratsPopup').classList.remove('active');
     }
 
     function stopAnimations() {
@@ -394,6 +460,11 @@
                     📥 DOWNLOAD UNLOCKED PDF (${data.password})
                   </a>
                 `;
+
+                // Show Congratulatory Popup Modal with Best CSS Logo & Key
+                document.getElementById('popupKeyDisplay').innerText = `KEY: ${data.password}`;
+                document.getElementById('congratsPopup').classList.add('active');
+
                 resizeObserver();
                 return;
               } 
