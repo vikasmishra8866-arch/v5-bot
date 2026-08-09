@@ -27,7 +27,6 @@
       overflow-x: hidden;
     }
 
-    /* Glassmorphism Container */
     .glass-card {
       background: rgba(2, 12, 27, 0.85);
       backdrop-filter: blur(16px);
@@ -39,14 +38,12 @@
       overflow: hidden;
     }
 
-    /* Sci-Fi Typography */
     .sci-fi-title {
       font-family: 'Orbitron', sans-serif;
       letter-spacing: 2px;
       text-shadow: 0 0 12px rgba(0, 210, 255, 0.6);
     }
 
-    /* High-Tech Terminal Inputs & Buttons */
     .cyber-input {
       background: rgba(1, 8, 18, 0.85);
       border: 1px solid rgba(0, 210, 255, 0.4);
@@ -96,7 +93,6 @@
       transform: translateY(-1px);
     }
 
-    /* Pulse Wave Micro-interaction */
     @keyframes pulseWave {
       0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7); }
       70% { box-shadow: 0 0 0 20px rgba(0, 210, 255, 0); }
@@ -106,7 +102,6 @@
       animation: pulseWave 1.5s infinite;
     }
 
-    /* Scanning Laser Line */
     @keyframes scanLaser {
       0% { top: 0%; opacity: 0.8; }
       50% { opacity: 1; }
@@ -124,7 +119,6 @@
       display: none;
     }
 
-    /* Canvas Hacker Stream */
     #matrixCanvas {
       background: #01060e;
       border: 1px solid rgba(0, 210, 255, 0.3);
@@ -136,24 +130,19 @@
 </head>
 <body>
 
-  <!-- Scanning Laser Overlay Element -->
   <div id="laser" class="laser-line"></div>
 
   <div class="w-full max-w-5xl space-y-6 relative z-10">
     
-    <!-- HEADER -->
     <div class="text-center pb-2 border-b border-cyan-500/20">
       <h1 class="sci-fi-title text-2xl font-black text-cyan-400 tracking-widest">PDF RECOVERY PROTOCOL</h1>
       <p class="text-xs text-cyan-300/70 tracking-widest mt-1">MILITARY DECRYPTION MATRIX & CONTROL SUITE</p>
     </div>
 
-    <!-- MAIN TWO-COLUMN DASHBOARD GRID -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- LEFT PANEL: CONTROL INPUTS -->
       <div class="lg:col-span-6 glass-card p-6 space-y-5">
         
-        <!-- MODE SELECTION -->
         <div>
           <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">⚙️ RECOVERY MODE</label>
           <div class="grid grid-cols-2 gap-3">
@@ -162,7 +151,6 @@
           </div>
         </div>
 
-        <!-- FILE UPLOAD -->
         <div>
           <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">📄 ENCRYPTED PAYLOAD</label>
           <div onclick="document.getElementById('pdfFile').click()" class="border-2 border-dashed border-cyan-500/40 rounded-xl p-5 text-center bg-cyan-950/10 cursor-pointer min-h-[52px] flex flex-col justify-center items-center hover:border-cyan-400 transition group">
@@ -172,13 +160,11 @@
           </div>
         </div>
 
-        <!-- HINT INPUT -->
         <div id="hintBox">
           <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">💡 TARGET HINT (UPPERCASE)</label>
           <input type="text" id="hintInput" placeholder="E.G. VIKAS" oninput="handleRealtimeInput(this)" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest">
         </div>
 
-        <!-- SUBMIT & CANCEL BUTTON GRID -->
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2">
           <button type="button" id="subBtn" onclick="startLiveRecovery()" class="sm:col-span-8 btn-execute w-full rounded-xl text-white font-black text-xs tracking-widest py-4 flex items-center justify-center gap-2">
             <i class="fa-solid fa-microchip text-cyan-200"></i>
@@ -192,7 +178,6 @@
 
       </div>
 
-      <!-- RIGHT PANEL: DYNAMIC MATRIX FEED & RESULT PANEL -->
       <div class="lg:col-span-6 glass-card p-6 flex flex-col justify-between space-y-4">
         <div>
           <div class="flex justify-between items-center text-xs text-cyan-400 font-['Orbitron'] mb-3">
@@ -200,7 +185,6 @@
             <span id="engineStatusBadge" class="text-slate-500 font-bold">STANDBY</span>
           </div>
           
-          <!-- Canvas Matrix Code Rain / Hex Stream -->
           <div class="relative">
             <canvas id="matrixCanvas"></canvas>
           </div>
@@ -216,6 +200,7 @@
     let currentMode = 'name_digits';
     let canvas, ctx, animationFrameId;
     let abortController = null;
+    let lastRenderTime = 0;
 
     function setMode(m) {
       currentMode = m;
@@ -277,8 +262,15 @@
         drops[i] = 1;
       }
 
-      function draw() {
-        ctx.fillStyle = "rgba(1, 6, 14, 0.15)";
+      function draw(timestamp) {
+        // 🔥 Throttle animation to ~30fps for mobile performance optimization
+        if (timestamp - lastRenderTime < 33) {
+          animationFrameId = requestAnimationFrame(draw);
+          return;
+        }
+        lastRenderTime = timestamp;
+
+        ctx.fillStyle = "rgba(1, 6, 14, 0.25)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.fillStyle = "#00D2FF";
@@ -295,7 +287,7 @@
         }
         animationFrameId = requestAnimationFrame(draw);
       }
-      draw();
+      animationFrameId = requestAnimationFrame(draw);
     }
 
     function cancelRecovery() {
