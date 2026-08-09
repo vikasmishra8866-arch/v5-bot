@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-import pikepdf
+from pypdf import PdfReader, PdfWriter
 import io
 import time
 import re
@@ -7,7 +7,6 @@ import base64
 
 app = Flask(__name__)
 
-# Built-in common Indian names and surnames dictionary matrix
 COMMON_NAMES = [
     "AMIT", "ANIL", "ARUN", "AJAY", "ABHI", "AKAS", "AMAN", "ANSH", "ANUP", "ASHU", 
     "DEEP", "DEVA", "DINE", "GAUR", "GURU", "HARI", "HEMA", "INDU", "JAYA", "JAYE", 
@@ -55,12 +54,17 @@ def recover():
                 for n in range(10000):
                     test_pass = f"{prefix}{n:04d}"
                     try:
-                        with pikepdf.open(io.BytesIO(pdf_bytes), password=test_pass) as pdf:
-                            out_stream = io.BytesIO()
-                            pdf.save(out_stream)
-                            found_password = test_pass
-                            unlocked_bytes = out_stream.getvalue()
-                            break
+                        reader = PdfReader(io.BytesIO(pdf_bytes))
+                        if reader.is_encrypted:
+                            if reader.decrypt(test_pass):
+                                writer = PdfWriter()
+                                for page in reader.pages:
+                                    writer.add_page(page)
+                                out_stream = io.BytesIO()
+                                writer.write(out_stream)
+                                found_password = test_pass
+                                unlocked_bytes = out_stream.getvalue()
+                                break
                     except:
                         continue
                 if found_password:
@@ -69,12 +73,17 @@ def recover():
             for n in range(100000000):
                 test_pass = f"{n:08d}"
                 try:
-                    with pikepdf.open(io.BytesIO(pdf_bytes), password=test_pass) as pdf:
-                        out_stream = io.BytesIO()
-                        pdf.save(out_stream)
-                        found_password = test_pass
-                        unlocked_bytes = out_stream.getvalue()
-                        break
+                    reader = PdfReader(io.BytesIO(pdf_bytes))
+                    if reader.is_encrypted:
+                        if reader.decrypt(test_pass):
+                            writer = PdfWriter()
+                            for page in reader.pages:
+                                writer.add_page(page)
+                            out_stream = io.BytesIO()
+                            writer.write(out_stream)
+                            found_password = test_pass
+                            unlocked_bytes = out_stream.getvalue()
+                            break
                 except:
                     continue
                 if found_password:
