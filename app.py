@@ -52,10 +52,10 @@ def stream_recover():
                         search_prefixes.append(name)
 
                 for prefix in search_prefixes:
-                    for n in range(10000):
-                        test_pass = f"{prefix}{n:04d}"
+                    # 🔥 Year restriction: 2000 se lekar 2030 tak hi check hoga
+                    for year in range(2000, 2031):
+                        test_pass = f"{prefix}{year}"
                         
-                        # Send live scanning log to frontend
                         yield f"data: {json.dumps({'status': 'testing', 'pass': test_pass})}\n\n"
 
                         try:
@@ -72,7 +72,7 @@ def stream_recover():
             else: # 8-Digit mode
                 for n in range(100000000):
                     test_pass = f"{n:08d}"
-                    if n % 50 == 0: # Stream every 50th attempt for smooth speed
+                    if n % 50 == 0:
                         yield f"data: {json.dumps({'status': 'testing', 'pass': test_pass})}\n\n"
                     try:
                         with pikepdf.open(io.BytesIO(pdf_bytes), password=test_pass) as pdf:
