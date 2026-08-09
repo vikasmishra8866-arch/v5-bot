@@ -3,116 +3,182 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Recovery Pro - Deep Ocean Hydro</title>
+  <title>PDF Recovery Pro - Military Grade Matrix</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --neon-blue: #00D2FF;
+      --deep-neon: #0072FF;
+      --bg-dark: #02060F;
+    }
+
     body {
-      background: radial-gradient(circle at 50% 0%, #031329 0%, #010814 100%);
-      color: #f8fafc;
-      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 50% 50%, #051329 0%, var(--bg-dark) 100%);
+      color: #e2e8f0;
+      font-family: 'Share Tech Mono', monospace;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 1rem;
       margin: 0;
+      overflow-x: hidden;
     }
-    .hydro-card {
-      background: linear-gradient(135deg, rgba(11, 29, 58, 0.95) 0%, rgba(5, 15, 30, 0.98) 100%);
-      border: 1px solid rgba(6, 182, 212, 0.3);
-      box-shadow: 0 0 25px rgba(6, 182, 212, 0.15), inset 0 0 15px rgba(6, 182, 212, 0.05);
-      border-radius: 24px;
-      animation: fadeInUp 0.6s ease-out forwards;
-      backdrop-filter: blur(12px);
+
+    /* Glassmorphism Container with Glow */
+    .glass-card {
+      background: rgba(2, 12, 27, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 210, 255, 0.35);
+      box-shadow: 0 0 35px rgba(0, 114, 255, 0.2), inset 0 0 20px rgba(0, 210, 255, 0.05);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
     }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(12px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+
+    /* Sci-Fi Typography */
+    .sci-fi-title {
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px rgba(0, 210, 255, 0.6);
     }
+
+    /* High-Tech Terminal Inputs & Buttons */
     .cyber-input {
-      background: rgba(3, 19, 41, 0.9);
-      border: 1px solid rgba(6, 182, 212, 0.4);
-      color: #22d3ee;
-      min-height: 48px;
+      background: rgba(1, 8, 18, 0.85);
+      border: 1px solid rgba(0, 210, 255, 0.4);
+      color: var(--neon-blue);
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.3s ease;
     }
     .cyber-input:focus {
       outline: none;
-      border-color: #06b6d4;
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
     }
-    .btn-cyber {
-      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
-      min-height: 48px;
-      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+
+    .mode-btn {
+      background: rgba(1, 8, 18, 0.9);
+      border: 1px solid rgba(0, 114, 255, 0.4);
+      color: #94a3b8;
+      font-family: 'Orbitron', sans-serif;
       transition: all 0.3s ease;
     }
-    .btn-cyber:hover:not(:disabled) {
-      transform: scale(1.02);
-      box-shadow: 0 0 25px rgba(6, 182, 212, 0.7);
+    .mode-btn.active {
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.25) 0%, rgba(0, 114, 255, 0.35) 100%);
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+      box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
     }
-    .terminal-box {
-      font-family: 'JetBrains Mono', monospace;
-      background: #020617;
-      border: 1px solid rgba(6, 182, 212, 0.3);
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+
+    .btn-execute {
+      background: linear-gradient(135deg, var(--neon-blue) 0%, var(--deep-neon) 100%);
+      font-family: 'Orbitron', sans-serif;
+      box-shadow: 0 4px 25px rgba(0, 210, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+    .btn-execute:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 210, 255, 0.8);
+    }
+
+    /* Pulse Wave Micro-interaction */
+    @keyframes pulseWave {
+      0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7); }
+      70% { box-shadow: 0 0 0 20px rgba(0, 210, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); }
+    }
+    .pulse-active {
+      animation: pulseWave 1.5s infinite;
+    }
+
+    /* Scanning Laser Line */
+    @keyframes scanLaser {
+      0% { top: 0%; opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { top: 100%; opacity: 0.8; }
+    }
+    .laser-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--neon-blue);
+      box-shadow: 0 0 15px #00d2ff, 0 0 30px #0072ff;
+      animation: scanLaser 2s linear infinite;
+      pointer-events: none;
+      display: none;
+    }
+
+    /* Canvas Hacker Stream */
+    #matrixCanvas {
+      background: #01060e;
+      border: 1px solid rgba(0, 210, 255, 0.3);
+      border-radius: 12px;
+      width: 100%;
+      height: 120px;
     }
   </style>
 </head>
 <body>
 
-  <div class="w-full max-w-lg space-y-4">
-    <div class="hydro-card p-6 space-y-5">
+  <!-- Scanning Laser Overlay Element -->
+  <div id="laser" class="laser-line"></div>
+
+  <div class="w-full max-w-md space-y-4 relative z-10">
+    <div class="glass-card p-6 space-y-5" id="mainCard">
       
-      <!-- HEADER TITLE -->
-      <div class="text-center pb-2 border-b border-cyan-500/20">
-        <h1 class="text-xl font-black tracking-widest text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">ULTRA RECOVERY SUITE</h1>
-        <p class="text-xs text-slate-400 mt-1">SECURE DECRYPTION ENGINE</p>
+      <!-- HEADER -->
+      <div class="text-center pb-3 border-b border-cyan-500/20">
+        <h1 class="sci-fi-title text-lg font-black text-cyan-400">PDF RECOVERY PROTOCOL</h1>
+        <p class="text-xs text-cyan-300/70 tracking-widest mt-1">MILITARY DECRYPTION MATRIX</p>
       </div>
 
       <!-- MODE SELECTION -->
       <div>
-        <label class="text-xs font-bold text-cyan-400 block mb-2">⚙️ RECOVERY MODE SELECTION</label>
+        <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">⚙️ RECOVERY MODE</label>
         <div class="grid grid-cols-2 gap-3">
-          <button type="button" id="m1" onclick="setMode('name_digits')" class="py-3 px-4 rounded-xl text-xs font-bold bg-cyan-500/20 border border-cyan-400 text-cyan-300 min-h-[48px]">Name + 4 Digits</button>
-          <button type="button" id="m2" onclick="setMode('numeric_8')" class="py-3 px-4 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400 min-h-[48px]">8-Digit Numbers</button>
+          <button type="button" id="m1" onclick="setMode('name_digits')" class="mode-btn active py-3 px-3 rounded-xl text-xs font-bold min-h-[48px]">Name + 4 Digits</button>
+          <button type="button" id="m2" onclick="setMode('numeric_8')" class="mode-btn py-3 px-3 rounded-xl text-xs font-bold min-h-[48px]">8-Digit Numbers</button>
         </div>
       </div>
 
       <!-- FILE UPLOAD -->
       <div>
-        <label class="text-xs font-bold text-cyan-400 block mb-2">📄 UPLOAD ENCRYPTED PDF</label>
-        <div onclick="document.getElementById('pdfFile').click()" class="border-2 border-dashed border-cyan-500/40 rounded-xl p-5 text-center bg-cyan-950/20 cursor-pointer min-h-[48px] flex flex-col justify-center items-center hover:border-cyan-400 transition">
-          <i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-400 mb-1 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]"></i>
-          <p id="fileLabel" class="text-xs text-slate-300 font-semibold">Click or drop encrypted PDF here</p>
+        <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">📄 ENCRYPTED PAYLOAD</label>
+        <div onclick="document.getElementById('pdfFile').click()" class="border-2 border-dashed border-cyan-500/40 rounded-xl p-5 text-center bg-cyan-950/10 cursor-pointer min-h-[48px] flex flex-col justify-center items-center hover:border-cyan-400 transition group">
+          <i class="fa-solid fa-file-shield text-2xl text-cyan-400 mb-1 group-hover:scale-110 transition drop-shadow-[0_0_8px_rgba(0,210,255,0.8)]"></i>
+          <p id="fileLabel" class="text-xs text-slate-300 font-semibold">Upload target encrypted PDF</p>
           <input type="file" id="pdfFile" accept="application/pdf" class="hidden" required onchange="updateFileLabel(this)">
         </div>
       </div>
 
       <!-- HINT INPUT -->
       <div id="hintBox">
-        <label class="text-xs font-bold text-cyan-400 block mb-2">💡 NAME HINT (UPPERCASE ONLY)</label>
-        <input type="text" id="hintInput" placeholder="E.G. VIKAS" oninput="handleRealtimeInput(this)" class="cyber-input w-full px-4 rounded-xl text-sm font-bold uppercase">
+        <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">💡 TARGET HINT (UPPERCASE)</label>
+        <input type="text" id="hintInput" placeholder="E.G. VIKAS" oninput="handleRealtimeInput(this)" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest">
       </div>
 
       <!-- SUBMIT BUTTON -->
-      <button type="button" id="subBtn" onclick="startLiveRecovery()" class="btn-cyber w-full rounded-xl text-white font-black text-sm tracking-wider flex items-center justify-center gap-2">
-        <i class="fa-solid fa-bolt text-amber-300"></i>
+      <button type="button" id="subBtn" onclick="startLiveRecovery()" class="btn-execute w-full rounded-xl text-white font-black text-xs tracking-widest py-4 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-microchip text-cyan-200"></i>
         <span id="btnText">EXECUTE RECOVERY ENGINE</span>
       </button>
     </div>
 
-    <!-- LIVE TERMINAL & RESULT PANEL -->
-    <div id="resultCard" class="hydro-card p-5 space-y-3 hidden">
-      <div class="flex justify-between items-center text-xs text-cyan-400 font-mono">
-        <span><i class="fa-solid fa-terminal"></i> LIVE SATELLITE FEED</span>
-        <span id="engineStatusBadge" class="text-amber-400 font-bold animate-pulse">SCANNING...</span>
+    <!-- DYNAMIC MATRIX FEED & RESULT PANEL -->
+    <div id="resultCard" class="glass-card p-5 space-y-3 hidden">
+      <div class="flex justify-between items-center text-xs text-cyan-400 font-['Orbitron']">
+        <span><i class="fa-solid fa-terminal"></i> HACKER STREAM FEED</span>
+        <span id="engineStatusBadge" class="text-amber-400 font-bold animate-pulse">DECRYPTING...</span>
       </div>
       
-      <!-- Live Coding Matrix Box -->
-      <div id="logContent" class="terminal-box p-3 rounded-xl h-28 overflow-y-auto text-xs flex flex-col space-y-1">
-        <span class="text-slate-500">> Initializing security bypass protocols...</span>
+      <!-- Canvas Matrix Code Rain / Hex Stream -->
+      <div class="relative">
+        <canvas id="matrixCanvas"></canvas>
       </div>
       
       <div id="downloadContainer"></div>
@@ -121,16 +187,17 @@
 
   <script>
     let currentMode = 'name_digits';
+    let canvas, ctx, animationFrameId;
 
     function setMode(m) {
       currentMode = m;
       if(m === 'name_digits') {
-        document.getElementById('m1').className = "py-3 px-4 rounded-xl text-xs font-bold bg-cyan-500/20 border border-cyan-400 text-cyan-300 min-h-[48px]";
-        document.getElementById('m2').className = "py-3 px-4 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400 min-h-[48px]";
+        document.getElementById('m1').classList.add('active');
+        document.getElementById('m2').classList.remove('active');
         document.getElementById('hintBox').style.display = 'block';
       } else {
-        document.getElementById('m2').className = "py-3 px-4 rounded-xl text-xs font-bold bg-cyan-500/20 border border-cyan-400 text-cyan-300 min-h-[48px]";
-        document.getElementById('m1').className = "py-3 px-4 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400 min-h-[48px]";
+        document.getElementById('m2').classList.add('active');
+        document.getElementById('m1').classList.remove('active');
         document.getElementById('hintBox').style.display = 'none';
       }
       resizeObserver();
@@ -152,26 +219,64 @@
     }
     window.addEventListener('load', resizeObserver);
 
+    // Initialize Canvas Matrix Rain / Hex Stream Effect
+    function initMatrixCanvas() {
+      canvas = document.getElementById('matrixCanvas');
+      ctx = canvas.getContext('2d');
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = 120;
+
+      const chars = "01ABCDEFXYZ00210A7F9";
+      const fontSize = 12;
+      const columns = Math.floor(canvas.width / fontSize);
+      const drops = [];
+      for (let i = 0; i < columns; i++) {
+        drops[i] = 1;
+      }
+
+      function draw() {
+        ctx.fillStyle = "rgba(2, 6, 15, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#00D2FF";
+        ctx.font = fontSize + "px 'Share Tech Mono', monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = chars.charAt(Math.floor(Math.random() * chars.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+        animationFrameId = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
     async function startLiveRecovery() {
       const fileInput = document.getElementById('pdfFile');
       if(!fileInput.files[0]) {
-        alert('Please upload a PDF file first!');
+        alert('Please upload an encrypted PDF payload first!');
         return;
       }
 
       const subBtn = document.getElementById('subBtn');
       subBtn.disabled = true;
-      subBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      subBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pulse-active');
 
+      // Show laser scanning line & result card with canvas stream
+      document.getElementById('laser').style.display = 'block';
       const resultCard = document.getElementById('resultCard');
-      const logContent = document.getElementById('logContent');
       const engineStatusBadge = document.getElementById('engineStatusBadge');
       
       resultCard.classList.remove('hidden');
-      logContent.innerHTML = `<span class="text-slate-400">> Target loaded. Starting high-speed brute-force matrix...</span>`;
       engineStatusBadge.className = "text-amber-400 font-bold animate-pulse";
-      engineStatusBadge.innerText = "SCANNING...";
+      engineStatusBadge.innerText = "DECRYPTING...";
       document.getElementById('downloadContainer').innerHTML = "";
+      
+      initMatrixCanvas();
       resizeObserver();
 
       const formData = new FormData();
@@ -191,27 +296,33 @@
           
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n\n');
-          buffer = lines.pop(); // keep last incomplete chunk
+          buffer = lines.pop();
 
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const data = JSON.parse(line.substring(6));
 
-              if (data.status === 'testing') {
-                // RED/CYAN Live Coding stream output
-                logContent.innerHTML += `<div class="text-red-400 font-mono text-[11px]">> TESTING KEY: <span class="text-cyan-300">${data.pass}</span></div>`;
-                logContent.scrollTop = logContent.scrollHeight;
-              } 
-              else if (data.status === 'success') {
-                // STOP SCREEN & SHOW GREEN SUCCESS
-                engineStatusBadge.className = "text-emerald-400 font-bold";
-                engineStatusBadge.innerText = "SECURED";
+              if (data.status === 'success') {
+                // STOP ANIMATIONS & SHOW SUCCESS
+                cancelAnimationFrame(animationFrameId);
+                document.getElementById('laser').style.display = 'none';
+                subBtn.classList.remove('pulse-active');
+
+                engineStatusBadge.className = "text-emerald-400 font-bold drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]";
+                engineStatusBadge.innerText = "BYPASS SUCCESSFUL";
                 
-                logContent.innerHTML += `<div class="text-emerald-400 font-bold mt-2">> [SUCCESS] MATCH FOUND! Password: <span class="text-amber-300 text-sm">${data.password}</span> (Time: ${data.elapsed}s)</div>`;
-                logContent.scrollTop = logContent.scrollHeight;
+                // Draw success message on canvas
+                ctx.fillStyle = "#02060F";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#10B981";
+                ctx.font = "14px 'Orbitron', sans-serif";
+                ctx.fillText(`KEY: ${data.password}`, 20, 45);
+                ctx.fillStyle = "#00D2FF";
+                ctx.font = "11px 'Share Tech Mono', monospace";
+                ctx.fillText(`TIME ELAPSED: ${data.elapsed}s`, 20, 75);
 
                 document.getElementById('downloadContainer').innerHTML = `
-                  <a href="data:application/pdf;base64,${data.pdf_data}" download="Unlocked_${data.password}.pdf" class="block w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-center font-black rounded-xl text-white text-xs tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-[1.02] transition">
+                  <a href="data:application/pdf;base64,${data.pdf_data}" download="Unlocked_${data.password}.pdf" class="block w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-center font-['Orbitron'] font-black rounded-xl text-white text-xs tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:scale-[1.02] transition">
                     📥 DOWNLOAD UNLOCKED PDF (${data.password})
                   </a>
                 `;
@@ -219,21 +330,34 @@
                 subBtn.disabled = false;
                 subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 resizeObserver();
-                return; // Stop processing loop instantly
+                return;
               } 
-              else if (data.status === 'failed') {
+              else if (data.status === 'failed' || data.status === 'error') {
+                cancelAnimationFrame(animationFrameId);
+                document.getElementById('laser').style.display = 'none';
+                subBtn.classList.remove('pulse-active');
+
                 engineStatusBadge.className = "text-red-500 font-bold";
                 engineStatusBadge.innerText = "FAILED";
-                logContent.innerHTML += `<div class="text-red-500 font-bold">> [X] Password not matched in database matrix.</div>`;
+                
+                ctx.fillStyle = "#02060F";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#EF4444";
+                ctx.font = "12px 'Orbitron', sans-serif";
+                ctx.fillText(`[X] MATCH NOT FOUND`, 20, 60);
+
                 subBtn.disabled = false;
                 subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                resizeObserver();
                 return;
               }
             }
           }
         }
       } catch (err) {
-        logContent.innerHTML += `<div class="text-red-500">> [ERROR] Stream connection terminated.</div>`;
+        cancelAnimationFrame(animationFrameId);
+        document.getElementById('laser').style.display = 'none';
+        subBtn.classList.remove('pulse-active');
         subBtn.disabled = false;
         subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       }
