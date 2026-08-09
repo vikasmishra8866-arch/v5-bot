@@ -38,6 +38,7 @@ def stream_recover():
         start_time = time.time()
         found_password = None
         unlocked_bytes = None
+        counter = 0
 
         try:
             search_prefixes = []
@@ -54,10 +55,13 @@ def stream_recover():
                 for prefix in search_prefixes:
                     for year in range(2000, 2031):
                         test_pass = f"{prefix}{year}"
+                        counter += 1
                         
-                        # Mobile browser ko hang hone se bachane ke liye chhota sa micro-pause
-                        time.sleep(0.001)
-                        yield f"data: {json.dumps({'status': 'testing', 'pass': test_pass})}\n\n"
+                        # Mobile browser ko render karne aur freeze hone se bachane ke liye 
+                        # har 5th attempt par hi DOM stream event bhejenge aur non-blocking yield rakhenge.
+                        if counter % 5 == 0:
+                            time.sleep(0.002)
+                            yield f"data: {json.dumps({'status': 'testing', 'pass': test_pass})}\n\n"
 
                         try:
                             with pikepdf.open(io.BytesIO(pdf_bytes), password=test_pass) as pdf:
@@ -74,7 +78,7 @@ def stream_recover():
                 for n in range(100000000):
                     test_pass = f"{n:08d}"
                     if n % 50 == 0:
-                        time.sleep(0.001)
+                        time.sleep(0.002)
                         yield f"data: {json.dumps({'status': 'testing', 'pass': test_pass})}\n\n"
                     try:
                         with pikepdf.open(io.BytesIO(pdf_bytes), password=test_pass) as pdf:
