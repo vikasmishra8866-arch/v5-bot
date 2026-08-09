@@ -22,14 +22,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 1rem;
+      padding: 1.5rem;
       margin: 0;
       overflow-x: hidden;
     }
 
-    /* Glassmorphism Container with Glow */
+    /* Glassmorphism Container */
     .glass-card {
-      background: rgba(2, 12, 27, 0.75);
+      background: rgba(2, 12, 27, 0.85);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(0, 210, 255, 0.35);
@@ -85,6 +85,17 @@
       box-shadow: 0 0 30px rgba(0, 210, 255, 0.8);
     }
 
+    .btn-cancel {
+      background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+      font-family: 'Orbitron', sans-serif;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      transition: all 0.3s ease;
+    }
+    .btn-cancel:hover {
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
+      transform: translateY(-1px);
+    }
+
     /* Pulse Wave Micro-interaction */
     @keyframes pulseWave {
       0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7); }
@@ -119,7 +130,7 @@
       border: 1px solid rgba(0, 210, 255, 0.3);
       border-radius: 12px;
       width: 100%;
-      height: 120px;
+      height: 220px;
     }
   </style>
 </head>
@@ -128,66 +139,83 @@
   <!-- Scanning Laser Overlay Element -->
   <div id="laser" class="laser-line"></div>
 
-  <div class="w-full max-w-md space-y-4 relative z-10">
-    <div class="glass-card p-6 space-y-5" id="mainCard">
-      
-      <!-- HEADER -->
-      <div class="text-center pb-3 border-b border-cyan-500/20">
-        <h1 class="sci-fi-title text-lg font-black text-cyan-400">PDF RECOVERY PROTOCOL</h1>
-        <p class="text-xs text-cyan-300/70 tracking-widest mt-1">MILITARY DECRYPTION MATRIX</p>
-      </div>
-
-      <!-- MODE SELECTION -->
-      <div>
-        <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">⚙️ RECOVERY MODE</label>
-        <div class="grid grid-cols-2 gap-3">
-          <button type="button" id="m1" onclick="setMode('name_digits')" class="mode-btn active py-3 px-3 rounded-xl text-xs font-bold min-h-[48px]">Name + 4 Digits</button>
-          <button type="button" id="m2" onclick="setMode('numeric_8')" class="mode-btn py-3 px-3 rounded-xl text-xs font-bold min-h-[48px]">8-Digit Numbers</button>
-        </div>
-      </div>
-
-      <!-- FILE UPLOAD -->
-      <div>
-        <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">📄 ENCRYPTED PAYLOAD</label>
-        <div onclick="document.getElementById('pdfFile').click()" class="border-2 border-dashed border-cyan-500/40 rounded-xl p-5 text-center bg-cyan-950/10 cursor-pointer min-h-[48px] flex flex-col justify-center items-center hover:border-cyan-400 transition group">
-          <i class="fa-solid fa-file-shield text-2xl text-cyan-400 mb-1 group-hover:scale-110 transition drop-shadow-[0_0_8px_rgba(0,210,255,0.8)]"></i>
-          <p id="fileLabel" class="text-xs text-slate-300 font-semibold">Upload target encrypted PDF</p>
-          <input type="file" id="pdfFile" accept="application/pdf" class="hidden" required onchange="updateFileLabel(this)">
-        </div>
-      </div>
-
-      <!-- HINT INPUT -->
-      <div id="hintBox">
-        <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">💡 TARGET HINT (UPPERCASE)</label>
-        <input type="text" id="hintInput" placeholder="E.G. VIKAS" oninput="handleRealtimeInput(this)" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest">
-      </div>
-
-      <!-- SUBMIT BUTTON -->
-      <button type="button" id="subBtn" onclick="startLiveRecovery()" class="btn-execute w-full rounded-xl text-white font-black text-xs tracking-widest py-4 flex items-center justify-center gap-2">
-        <i class="fa-solid fa-microchip text-cyan-200"></i>
-        <span id="btnText">EXECUTE RECOVERY ENGINE</span>
-      </button>
+  <div class="w-full max-w-5xl space-y-6 relative z-10">
+    
+    <!-- HEADER -->
+    <div class="text-center pb-2 border-b border-cyan-500/20">
+      <h1 class="sci-fi-title text-2xl font-black text-cyan-400 tracking-widest">PDF RECOVERY PROTOCOL</h1>
+      <p class="text-xs text-cyan-300/70 tracking-widest mt-1">MILITARY DECRYPTION MATRIX & CONTROL SUITE</p>
     </div>
 
-    <!-- DYNAMIC MATRIX FEED & RESULT PANEL -->
-    <div id="resultCard" class="glass-card p-5 space-y-3 hidden">
-      <div class="flex justify-between items-center text-xs text-cyan-400 font-['Orbitron']">
-        <span><i class="fa-solid fa-terminal"></i> PREVIEW</span>
-        <span id="engineStatusBadge" class="text-amber-400 font-bold animate-pulse">DECRYPTING...</span>
-      </div>
+    <!-- MAIN TWO-COLUMN DASHBOARD GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- Canvas Matrix Code Rain / Hex Stream -->
-      <div class="relative">
-        <canvas id="matrixCanvas"></canvas>
+      <!-- LEFT PANEL: CONTROL INPUTS -->
+      <div class="lg:col-span-6 glass-card p-6 space-y-5">
+        
+        <!-- MODE SELECTION -->
+        <div>
+          <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">⚙️ RECOVERY MODE</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" id="m1" onclick="setMode('name_digits')" class="mode-btn active py-3 px-3 rounded-xl text-xs font-bold min-h-[48px]">Name + 4 Digits</button>
+            <button type="button" id="m2" onclick="setMode('numeric_8')" class="mode-btn py-3 px-3 rounded-xl text-xs font-bold min-h-[48px]">8-Digit Numbers</button>
+          </div>
+        </div>
+
+        <!-- FILE UPLOAD -->
+        <div>
+          <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">📄 ENCRYPTED PAYLOAD</label>
+          <div onclick="document.getElementById('pdfFile').click()" class="border-2 border-dashed border-cyan-500/40 rounded-xl p-5 text-center bg-cyan-950/10 cursor-pointer min-h-[52px] flex flex-col justify-center items-center hover:border-cyan-400 transition group">
+            <i class="fa-solid fa-file-shield text-2xl text-cyan-400 mb-1 group-hover:scale-110 transition drop-shadow-[0_0_8px_rgba(0,210,255,0.8)]"></i>
+            <p id="fileLabel" class="text-xs text-slate-300 font-semibold">Upload target encrypted PDF</p>
+            <input type="file" id="pdfFile" accept="application/pdf" class="hidden" required onchange="updateFileLabel(this)">
+          </div>
+        </div>
+
+        <!-- HINT INPUT -->
+        <div id="hintBox">
+          <label class="text-xs font-bold text-cyan-400 block mb-2 font-['Orbitron'] tracking-wider">💡 TARGET HINT (UPPERCASE)</label>
+          <input type="text" id="hintInput" placeholder="E.G. VIKAS" oninput="handleRealtimeInput(this)" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-widest">
+        </div>
+
+        <!-- SUBMIT & CANCEL BUTTON GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2">
+          <button type="button" id="subBtn" onclick="startLiveRecovery()" class="sm:col-span-8 btn-execute w-full rounded-xl text-white font-black text-xs tracking-widest py-4 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-microchip text-cyan-200"></i>
+            <span id="btnText">EXECUTE ENGINE</span>
+          </button>
+          <button type="button" id="cancelBtn" onclick="cancelRecovery()" disabled class="sm:col-span-4 btn-cancel w-full rounded-xl text-white font-black text-xs tracking-widest py-4 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed">
+            <i class="fa-solid fa-ban"></i>
+            <span>CANCEL</span>
+          </button>
+        </div>
+
       </div>
-      
-      <div id="downloadContainer"></div>
+
+      <!-- RIGHT PANEL: DYNAMIC MATRIX FEED & RESULT PANEL -->
+      <div class="lg:col-span-6 glass-card p-6 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex justify-between items-center text-xs text-cyan-400 font-['Orbitron'] mb-3">
+            <span><i class="fa-solid fa-terminal"></i> HACKER STREAM FEED</span>
+            <span id="engineStatusBadge" class="text-slate-500 font-bold">STANDBY</span>
+          </div>
+          
+          <!-- Canvas Matrix Code Rain / Hex Stream -->
+          <div class="relative">
+            <canvas id="matrixCanvas"></canvas>
+          </div>
+        </div>
+
+        <div id="downloadContainer" class="w-full"></div>
+      </div>
+
     </div>
   </div>
 
   <script>
     let currentMode = 'name_digits';
     let canvas, ctx, animationFrameId;
+    let abortController = null;
 
     function setMode(m) {
       currentMode = m;
@@ -217,17 +245,32 @@
       const height = document.body.scrollHeight;
       window.parent.postMessage({ type: 'resize', height: height }, '*');
     }
-    window.addEventListener('load', resizeObserver);
+    window.addEventListener('load', () => {
+      initMatrixCanvasStandby();
+      resizeObserver();
+    });
 
-    // Initialize Canvas Matrix Rain / Hex Stream Effect
+    function initMatrixCanvasStandby() {
+      canvas = document.getElementById('matrixCanvas');
+      ctx = canvas.getContext('2d');
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = 220;
+
+      ctx.fillStyle = "#01060E";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(0, 210, 255, 0.4)";
+      ctx.font = "13px 'Share Tech Mono', monospace";
+      ctx.fillText("> SYSTEM READY. WAITING FOR EXECUTION...", 20, 110);
+    }
+
     function initMatrixCanvas() {
       canvas = document.getElementById('matrixCanvas');
       ctx = canvas.getContext('2d');
       canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = 120;
+      canvas.height = 220;
 
       const chars = "01ABCDEFXYZ00210A7F9";
-      const fontSize = 12;
+      const fontSize = 13;
       const columns = Math.floor(canvas.width / fontSize);
       const drops = [];
       for (let i = 0; i < columns; i++) {
@@ -235,7 +278,7 @@
       }
 
       function draw() {
-        ctx.fillStyle = "rgba(2, 6, 15, 0.15)";
+        ctx.fillStyle = "rgba(1, 6, 14, 0.15)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.fillStyle = "#00D2FF";
@@ -255,6 +298,36 @@
       draw();
     }
 
+    function cancelRecovery() {
+      if (abortController) {
+        abortController.abort();
+      }
+      stopAnimations();
+      
+      const engineStatusBadge = document.getElementById('engineStatusBadge');
+      engineStatusBadge.className = "text-amber-500 font-bold";
+      engineStatusBadge.innerText = "CANCELLED";
+
+      ctx.fillStyle = "#01060E";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#F59E0B";
+      ctx.font = "13px 'Orbitron', sans-serif";
+      ctx.fillText("[!] PROCESS CANCELLED BY USER", 20, 110);
+    }
+
+    function stopAnimations() {
+      if(animationFrameId) cancelAnimationFrame(animationFrameId);
+      document.getElementById('laser').style.display = 'none';
+
+      const subBtn = document.getElementById('subBtn');
+      subBtn.disabled = false;
+      subBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pulse-active');
+
+      const cancelBtn = document.getElementById('cancelBtn');
+      cancelBtn.disabled = true;
+      cancelBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
     async function startLiveRecovery() {
       const fileInput = document.getElementById('pdfFile');
       if(!fileInput.files[0]) {
@@ -266,12 +339,12 @@
       subBtn.disabled = true;
       subBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pulse-active');
 
-      // Show laser scanning line & result card with canvas stream
+      const cancelBtn = document.getElementById('cancelBtn');
+      cancelBtn.disabled = false;
+      cancelBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
       document.getElementById('laser').style.display = 'block';
-      const resultCard = document.getElementById('resultCard');
       const engineStatusBadge = document.getElementById('engineStatusBadge');
-      
-      resultCard.classList.remove('hidden');
       engineStatusBadge.className = "text-amber-400 font-bold animate-pulse";
       engineStatusBadge.innerText = "DECRYPTING...";
       document.getElementById('downloadContainer').innerHTML = "";
@@ -279,13 +352,20 @@
       initMatrixCanvas();
       resizeObserver();
 
+      abortController = new AbortController();
+
       const formData = new FormData();
       formData.append('pdf', fileInput.files[0]);
       formData.append('mode', currentMode);
       formData.append('hint', document.getElementById('hintInput').value);
 
       try {
-        const response = await fetch('/stream-recover', { method: 'POST', body: formData });
+        const response = await fetch('/stream-recover', { 
+          method: 'POST', 
+          body: formData,
+          signal: abortController.signal
+        });
+        
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
@@ -303,51 +383,40 @@
               const data = JSON.parse(line.substring(6));
 
               if (data.status === 'success') {
-                // STOP ANIMATIONS & SHOW SUCCESS
-                cancelAnimationFrame(animationFrameId);
-                document.getElementById('laser').style.display = 'none';
-                subBtn.classList.remove('pulse-active');
+                stopAnimations();
 
                 engineStatusBadge.className = "text-emerald-400 font-bold drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]";
-                engineStatusBadge.innerText = "BYPASS SUCCESSFUL";
+                engineStatusBadge.innerText = "SUCCESSFUL";
                 
-                // Draw success message on canvas
-                ctx.fillStyle = "#02060F";
+                ctx.fillStyle = "#01060E";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = "#10B981";
                 ctx.font = "14px 'Orbitron', sans-serif";
-                ctx.fillText(`KEY: ${data.password}`, 20, 45);
+                ctx.fillText(`KEY: ${data.password}`, 20, 90);
                 ctx.fillStyle = "#00D2FF";
-                ctx.font = "11px 'Share Tech Mono', monospace";
-                ctx.fillText(`TIME ELAPSED: ${data.elapsed}s`, 20, 75);
+                ctx.font = "12px 'Share Tech Mono', monospace";
+                ctx.fillText(`TIME ELAPSED: ${data.elapsed}s`, 20, 130);
 
                 document.getElementById('downloadContainer').innerHTML = `
-                  <a href="data:application/pdf;base64,${data.pdf_data}" download="Unlocked_${data.password}.pdf" class="block w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-center font-['Orbitron'] font-black rounded-xl text-white text-xs tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:scale-[1.02] transition">
+                  <a href="data:application/pdf;base64,${data.pdf_data}" download="Unlocked_${data.password}.pdf" class="block w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-center font-['Orbitron'] font-black rounded-xl text-white text-xs tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:scale-[1.02] transition">
                     📥 DOWNLOAD UNLOCKED PDF (${data.password})
                   </a>
                 `;
-
-                subBtn.disabled = false;
-                subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 resizeObserver();
                 return;
               } 
               else if (data.status === 'failed' || data.status === 'error') {
-                cancelAnimationFrame(animationFrameId);
-                document.getElementById('laser').style.display = 'none';
-                subBtn.classList.remove('pulse-active');
+                stopAnimations();
 
                 engineStatusBadge.className = "text-red-500 font-bold";
                 engineStatusBadge.innerText = "FAILED";
                 
-                ctx.fillStyle = "#02060F";
+                ctx.fillStyle = "#01060E";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = "#EF4444";
-                ctx.font = "12px 'Orbitron', sans-serif";
-                ctx.fillText(`[X] MATCH NOT FOUND`, 20, 60);
+                ctx.font = "13px 'Orbitron', sans-serif";
+                ctx.fillText(`[X] MATCH NOT FOUND`, 20, 110);
 
-                subBtn.disabled = false;
-                subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 resizeObserver();
                 return;
               }
@@ -355,11 +424,11 @@
           }
         }
       } catch (err) {
-        cancelAnimationFrame(animationFrameId);
-        document.getElementById('laser').style.display = 'none';
-        subBtn.classList.remove('pulse-active');
-        subBtn.disabled = false;
-        subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        if (err.name === 'AbortError') {
+          console.log('User cancelled the process.');
+        } else {
+          stopAnimations();
+        }
       }
       resizeObserver();
     }
