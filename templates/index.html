@@ -6,7 +6,7 @@
   <title>PDF Recovery Pro - Deep Ocean Hydro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       background: radial-gradient(circle at 50% 0%, #031329 0%, #010814 100%);
@@ -20,11 +20,12 @@
       margin: 0;
     }
     .hydro-card {
-      background: #0b1d3a;
-      border: 1px solid rgba(6, 182, 212, 0.2);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(11, 29, 58, 0.95) 0%, rgba(5, 15, 30, 0.98) 100%);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.15), inset 0 0 15px rgba(6, 182, 212, 0.05);
+      border-radius: 24px;
       animation: fadeInUp 0.6s ease-out forwards;
+      backdrop-filter: blur(12px);
     }
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(12px) scale(0.98); }
@@ -32,37 +33,44 @@
     }
     .cyber-input {
       background: rgba(3, 19, 41, 0.9);
-      border: 1px solid rgba(6, 182, 212, 0.3);
+      border: 1px solid rgba(6, 182, 212, 0.4);
       color: #22d3ee;
       min-height: 48px;
     }
     .cyber-input:focus {
       outline: none;
-      ring: 2px;
       border-color: #06b6d4;
-      box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
     }
     .btn-cyber {
       background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
       min-height: 48px;
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
       transition: all 0.3s ease;
     }
     .btn-cyber:hover:not(:disabled) {
       transform: scale(1.02);
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.7);
     }
-    @media print {
-      body { background: #fff; color: #000; }
-      .hydro-card { background: #fff; border: 1px solid #000; box-shadow: none; }
-      .btn-cyber, input, label { display: none !important; }
+    .terminal-box {
+      font-family: 'JetBrains Mono', monospace;
+      background: #020617;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
     }
   </style>
 </head>
 <body>
 
   <div class="w-full max-w-lg space-y-4">
-    <form id="recoveryForm" class="hydro-card p-6 space-y-5" onsubmit="handleRecovery(event)">
+    <div class="hydro-card p-6 space-y-5">
       
+      <!-- HEADER TITLE -->
+      <div class="text-center pb-2 border-b border-cyan-500/20">
+        <h1 class="text-xl font-black tracking-widest text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">ULTRA RECOVERY SUITE</h1>
+        <p class="text-xs text-slate-400 mt-1">SECURE DECRYPTION ENGINE</p>
+      </div>
+
       <!-- MODE SELECTION -->
       <div>
         <label class="text-xs font-bold text-cyan-400 block mb-2">⚙️ RECOVERY MODE SELECTION</label>
@@ -70,14 +78,13 @@
           <button type="button" id="m1" onclick="setMode('name_digits')" class="py-3 px-4 rounded-xl text-xs font-bold bg-cyan-500/20 border border-cyan-400 text-cyan-300 min-h-[48px]">Name + 4 Digits</button>
           <button type="button" id="m2" onclick="setMode('numeric_8')" class="py-3 px-4 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400 min-h-[48px]">8-Digit Numbers</button>
         </div>
-        <input type="hidden" id="selectedMode" value="name_digits">
       </div>
 
       <!-- FILE UPLOAD -->
       <div>
         <label class="text-xs font-bold text-cyan-400 block mb-2">📄 UPLOAD ENCRYPTED PDF</label>
-        <div onclick="document.getElementById('pdfFile').click()" class="border-2 border-dashed border-cyan-500/40 rounded-xl p-5 text-center bg-cyan-950/20 cursor-pointer min-h-[48px] flex flex-col justify-center items-center">
-          <i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-400 mb-1"></i>
+        <div onclick="document.getElementById('pdfFile').click()" class="border-2 border-dashed border-cyan-500/40 rounded-xl p-5 text-center bg-cyan-950/20 cursor-pointer min-h-[48px] flex flex-col justify-center items-center hover:border-cyan-400 transition">
+          <i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-400 mb-1 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]"></i>
           <p id="fileLabel" class="text-xs text-slate-300 font-semibold">Click or drop encrypted PDF here</p>
           <input type="file" id="pdfFile" accept="application/pdf" class="hidden" required onchange="updateFileLabel(this)">
         </div>
@@ -90,30 +97,33 @@
       </div>
 
       <!-- SUBMIT BUTTON -->
-      <button type="submit" id="subBtn" class="btn-cyber w-full rounded-xl text-white font-black text-sm tracking-wider flex items-center justify-center gap-2">
+      <button type="button" id="subBtn" onclick="startLiveRecovery()" class="btn-cyber w-full rounded-xl text-white font-black text-sm tracking-wider flex items-center justify-center gap-2">
         <i class="fa-solid fa-bolt text-amber-300"></i>
         <span id="btnText">EXECUTE RECOVERY ENGINE</span>
       </button>
-    </form>
+    </div>
 
-    <!-- RESULT & LOG PANEL -->
+    <!-- LIVE TERMINAL & RESULT PANEL -->
     <div id="resultCard" class="hydro-card p-5 space-y-3 hidden">
       <div class="flex justify-between items-center text-xs text-cyan-400 font-mono">
-        <span><i class="fa-solid fa-terminal"></i> ENGINE STATUS</span>
-        <span id="statusText" class="text-emerald-400 font-bold">SUCCESS</span>
+        <span><i class="fa-solid fa-terminal"></i> LIVE SATELLITE FEED</span>
+        <span id="engineStatusBadge" class="text-amber-400 font-bold animate-pulse">SCANNING...</span>
       </div>
-      <div id="logContent" class="bg-slate-950 p-3 rounded-xl font-mono text-xs text-emerald-300 border border-cyan-900"></div>
+      
+      <!-- Live Coding Matrix Box -->
+      <div id="logContent" class="terminal-box p-3 rounded-xl h-28 overflow-y-auto text-xs flex flex-col space-y-1">
+        <span class="text-slate-500">> Initializing security bypass protocols...</span>
+      </div>
+      
       <div id="downloadContainer"></div>
     </div>
   </div>
 
   <script>
     let currentMode = 'name_digits';
-    let isCooldown = false;
 
     function setMode(m) {
       currentMode = m;
-      document.getElementById('selectedMode').value = m;
       if(m === 'name_digits') {
         document.getElementById('m1').className = "py-3 px-4 rounded-xl text-xs font-bold bg-cyan-500/20 border border-cyan-400 text-cyan-300 min-h-[48px]";
         document.getElementById('m2').className = "py-3 px-4 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400 min-h-[48px]";
@@ -136,46 +146,32 @@
       input.value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
     }
 
-    // Dynamic Height Resizing for Parent iFrame Portal
     function resizeObserver() {
       const height = document.body.scrollHeight;
       window.parent.postMessage({ type: 'resize', height: height }, '*');
     }
     window.addEventListener('load', resizeObserver);
-    window.addEventListener('resize', resizeObserver);
 
-    async function handleRecovery(e) {
-      e.preventDefault();
-      if(isCooldown) return;
-
+    async function startLiveRecovery() {
       const fileInput = document.getElementById('pdfFile');
-      if(!fileInput.files[0]) return;
+      if(!fileInput.files[0]) {
+        alert('Please upload a PDF file first!');
+        return;
+      }
 
-      // Start Action Cooldown (7 seconds)
-      isCooldown = true;
       const subBtn = document.getElementById('subBtn');
-      const btnText = document.getElementById('btnText');
-      let cooldownTime = 7;
-      
       subBtn.disabled = true;
       subBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-      const cooldownInterval = setInterval(() => {
-        btnText.innerText = `COOLDOWN ACTIVE (${cooldownTime}s)`;
-        cooldownTime--;
-        if(cooldownTime < 0) {
-          clearInterval(cooldownInterval);
-          isCooldown = false;
-          subBtn.disabled = false;
-          subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-          btnText.innerText = "EXECUTE RECOVERY ENGINE";
-        }
-      }, 1000);
-
       const resultCard = document.getElementById('resultCard');
       const logContent = document.getElementById('logContent');
+      const engineStatusBadge = document.getElementById('engineStatusBadge');
+      
       resultCard.classList.remove('hidden');
-      logContent.innerHTML = "> [STATUS] Decryption engine running in background... Please wait.";
+      logContent.innerHTML = `<span class="text-slate-400">> Target loaded. Starting high-speed brute-force matrix...</span>`;
+      engineStatusBadge.className = "text-amber-400 font-bold animate-pulse";
+      engineStatusBadge.innerText = "SCANNING...";
+      document.getElementById('downloadContainer').innerHTML = "";
       resizeObserver();
 
       const formData = new FormData();
@@ -184,23 +180,62 @@
       formData.append('hint', document.getElementById('hintInput').value);
 
       try {
-        const response = await fetch('/recover', { method: 'POST', body: formData });
-        const res = await response.json();
+        const response = await fetch('/stream-recover', { method: 'POST', body: formData });
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-        if(res.success) {
-          logContent.innerHTML = `> [SUCCESS] Password Unlocked!<br>> Password: <span class="text-amber-400 font-bold">${res.password}</span><br>> Time Elapsed: ${res.elapsed}s`;
-          document.getElementById('downloadContainer').innerHTML = `
-            <a href="data:application/pdf;base64,${res.pdf_data}" download="Unlocked_${res.password}.pdf" class="block w-full py-3 bg-emerald-600 text-center font-black rounded-xl text-white text-xs tracking-wider shadow-lg hover:bg-emerald-500 transition">
-              📥 DOWNLOAD UNLOCKED PDF
-            </a>
-          `;
-          // Save in LocalStorage cache
-          localStorage.setItem('last_recovered_pass', res.password);
-        } else {
-          logContent.innerHTML = `<span class="text-red-400">> [FAILED] ${res.message}</span>`;
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n\n');
+          buffer = lines.pop(); // keep last incomplete chunk
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = JSON.parse(line.substring(6));
+
+              if (data.status === 'testing') {
+                // RED/CYAN Live Coding stream output
+                logContent.innerHTML += `<div class="text-red-400 font-mono text-[11px]">> TESTING KEY: <span class="text-cyan-300">${data.pass}</span></div>`;
+                logContent.scrollTop = logContent.scrollHeight;
+              } 
+              else if (data.status === 'success') {
+                // STOP SCREEN & SHOW GREEN SUCCESS
+                engineStatusBadge.className = "text-emerald-400 font-bold";
+                engineStatusBadge.innerText = "SECURED";
+                
+                logContent.innerHTML += `<div class="text-emerald-400 font-bold mt-2">> [SUCCESS] MATCH FOUND! Password: <span class="text-amber-300 text-sm">${data.password}</span> (Time: ${data.elapsed}s)</div>`;
+                logContent.scrollTop = logContent.scrollHeight;
+
+                document.getElementById('downloadContainer').innerHTML = `
+                  <a href="data:application/pdf;base64,${data.pdf_data}" download="Unlocked_${data.password}.pdf" class="block w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-center font-black rounded-xl text-white text-xs tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-[1.02] transition">
+                    📥 DOWNLOAD UNLOCKED PDF (${data.password})
+                  </a>
+                `;
+
+                subBtn.disabled = false;
+                subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                resizeObserver();
+                return; // Stop processing loop instantly
+              } 
+              else if (data.status === 'failed') {
+                engineStatusBadge.className = "text-red-500 font-bold";
+                engineStatusBadge.innerText = "FAILED";
+                logContent.innerHTML += `<div class="text-red-500 font-bold">> [X] Password not matched in database matrix.</div>`;
+                subBtn.disabled = false;
+                subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                return;
+              }
+            }
+          }
         }
       } catch (err) {
-        logContent.innerHTML = `<span class="text-red-400">> [ERROR] Network or server timeout failure.</span>`;
+        logContent.innerHTML += `<div class="text-red-500">> [ERROR] Stream connection terminated.</div>`;
+        subBtn.disabled = false;
+        subBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       }
       resizeObserver();
     }
